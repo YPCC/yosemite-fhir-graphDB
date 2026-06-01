@@ -1,0 +1,56 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix fhir: <http://hl7.org/fhir/> .
+@prefix sct: <http://snomed.info/id/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix diagnostic-report-status: <http://hl7.org/fhir/diagnostic-report-status/> .
+@prefix : <http://example.org/yosemite/> .
+
+<http://example.org/yosemite/combined-inference> a owl:Ontology .
+
+# Property Chains
+fhir:DiagnosticReport.conclusionCode.coding a owl:ObjectProperty ;
+    owl:propertyChainAxiom ( fhir:DiagnosticReport.conclusionCode fhir:CodeableConcept.coding ) .
+
+fhir:DiagnosticReport.subject.link a owl:ObjectProperty ;
+    owl:propertyChainAxiom ( fhir:DiagnosticReport.subject fhir:link ) .
+
+# Shared Classes
+:PatientReport a owl:Class ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty fhir:DiagnosticReport.subject.link ;
+        owl:someValuesFrom fhir:Patient
+    ] .
+
+:FinalStatus a owl:Class .
+diagnostic-report-status:final rdfs:subClassOf :FinalStatus .
+diagnostic-report-status:amended rdfs:subClassOf :FinalStatus .
+
+:FinalReport a owl:Class ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty fhir:DiagnosticReport.status ;
+        owl:someValuesFrom :FinalStatus
+    ] .
+
+# Cancer
+:ReportWithCancerDiagnosis a owl:Class ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty fhir:DiagnosticReport.conclusionCode.coding ;
+        owl:someValuesFrom sct:363346000
+    ] .
+
+:FinalPatientReportWithCancerDiagnosis a owl:Class ;
+    owl:equivalentClass [
+        owl:intersectionOf ( :PatientReport :FinalReport :ReportWithCancerDiagnosis )
+    ] .
+
+# Thyroid
+:ReportOfThyroidDisease a owl:Class ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty fhir:DiagnosticReport.conclusionCode.coding ;
+        owl:someValuesFrom sct:14304000
+    ] .

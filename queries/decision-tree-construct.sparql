@@ -1,0 +1,34 @@
+PREFIX : <http://example.org/yosemite/>
+PREFIX fhir: <http://hl7.org/fhir/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+
+CONSTRUCT {
+    ?report rdfs:label ?reportLabel ;
+            a ?inferredClass ;
+            :classifiedUnder ?inferredClass ;
+            :satisfiedRestriction ?restriction .
+
+    ?inferredClass rdfs:label ?classLabel .
+    ?restriction owl:onProperty ?onProp ;
+                 owl:someValuesFrom ?someFrom .
+} WHERE {
+    VALUES ?report { 
+        <http://hl7.org/fhir/DiagnosticReport/f201>
+        <http://hl7.org/fhir/DiagnosticReport/dxreport117>
+    }
+    ?report a ?inferredClass .
+    FILTER(STRSTARTS(STR(?inferredClass), "http://example.org/yosemite/"))
+    
+    OPTIONAL { ?report fhir:code/fhir:text ?reportLabel }
+    BIND(COALESCE(?reportLabel, STRAFTER(STR(?report), "DiagnosticReport/")) AS ?reportLabel)
+    
+    OPTIONAL { ?inferredClass dc:title | rdfs:label ?classLabel }
+    BIND(COALESCE(?classLabel, STRAFTER(STR(?inferredClass), "#")) AS ?classLabel)
+    
+    ?inferredClass (owl:equivalentClass | owl:intersectionOf*/rdf:rest*/rdf:first) ?restriction .
+    ?restriction a owl:Restriction ;
+                 owl:onProperty ?onProp ;
+                 owl:someValuesFrom ?someFrom .
+}

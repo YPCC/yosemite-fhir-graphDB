@@ -1,0 +1,7 @@
+PREFIX : <http://example.org/yosemite/>
+
+SELECT ?className WHERE {
+  <http://hl7.org/fhir/DiagnosticReport/dxreport117> a ?class .
+  BIND(STRAFTER(STR(?class), "http://example.org/yosemite/") AS ?className)
+  FILTER(STRSTARTS(STR(?class), "http://example.org/yosemite/"))
+}
